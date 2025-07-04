@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการแก๊ง - Cyber Command</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #0a0a0a;
+            color: #00ffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .cyber-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: -3;
+        }
+
+        .cyber-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite alternate;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        @keyframes neonGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
+            }
+            50% { 
+                box-shadow: 0 0 30px #ff00ff, 0 0 40px #ff00ff, 0 0 50px #ff00ff;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: neonGlow 2s ease-in-out infinite;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scanline 3s ease-in-out infinite;
+        }
+
+        @keyframes scanline {
+            0%, 100% { width: 200px; }
+            50% { width: 400px; }
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .menu-item {
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: #00ffff;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.3);
+            border-color: #ff00ff;
+        }
+
+        .menu-item h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .menu-item p {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid #00ffff;
+            padding: 10px;
+            font-size: 0.9rem;
+            z-index: 100;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .menu-item { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-bg"></div>
+    <div class="grid-overlay"></div>
+    <div class="floating-particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 CYBER COMMAND 🚀</h1>
+            <p style="font-size: 1.2rem; opacity: 0.7;">ระบบจัดการแก๊ง | เชื่อมต่อกับอนาคต</p>
+        </div>
+        
+        <div class="menu-grid">
+            <a href="send.html" class="menu-item">
+                <span class="icon">💰</span>
+                <h3>ส่งเงินแก๊ง</h3>
+                <p>ระบบโอนเงินภายในแก๊ง<br>รวดเร็ว ปลอดภัย ติดตามได้</p>
+            </a>
+            
+            <a href="send.html?type=leave" class="menu-item">
+                <span class="icon">📋</span>
+                <h3>แจ้งลาหยุด</h3>
+                <p>ระบบแจ้งการลาหยุด<br>แจ้งเตือนอัตโนมัติ</p>
+            </a>
+            
+            <div class="menu-item">
+                <span class="icon">📊</span>
+                <h3>สถิติแก๊ง</h3>
+                <p>ดูสถิติการเงิน<br>รายงานประจำเดือน</p>
+            </div>
+            
+            <div class="menu-item">
+                <span class="icon">⚙️</span>
+                <h3>ตั้งค่าระบบ</h3>
+                <p>จัดการสมาชิก<br>กำหนดสิทธิ์การใช้งาน</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <span>🟢 ระบบออนไลน์ | เชื่อมต่อ Discord ✓ | เวอร์ชั่น 2.0.1</span>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particleContainer = document.querySelector('.floating-particles');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 6 + 6) + 's';
+                
+                // Random colors
+                const colors = ['#00ffff', '#ff00ff', '#00ff00', '#ffff00'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                particleContainer.appendChild(particle);
+            }
+        }
+
+        // Add glitch effect to title
+        function addGlitchEffect() {
+            const title = document.querySelector('.header h1');
+            setInterval(() => {
+                if (Math.random() < 0.1) {
+                    title.style.textShadow = '2px 0 #ff00ff, -2px 0 #00ffff';
+                    setTimeout(() => {
+                        title.style.textShadow = 'none';
+                    }, 100);
+                }
+            }, 2000);
+        }
+
+        // Initialize effects
+        window.addEventListener('load', () => {
+            createParticles();
+            addGlitchEffect();
+        });
+
+        // Add hover sound effect (optional)
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                // Can add sound effect here
+            });
+        });
+    </script>
+</body>
+</html>
